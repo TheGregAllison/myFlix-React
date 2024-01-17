@@ -37,7 +37,7 @@ const FavoriteMovies = ({ FavMovies, user, setUser, movies }) => {
 
         setFilteredMovies(updatedFilteredMovies);
       } else {
-        alert('Movie could not be removed');
+        alert('Error: Movie could not be removed');
       }
     } catch (error) {
       console.error('Error removing from favorites:', error);
