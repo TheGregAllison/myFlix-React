@@ -1,17 +1,17 @@
 import React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 import UserInfo from './user-info';
-import { Container, Row, Col, Form, Button } from 'react-bootstrap';
+import { Container, Col, Form, Button } from 'react-bootstrap';
 import FavoriteMovies from './favorite-movies';
 
 export const ProfileView = ({ user, movies, setUser, token }) => {
   const [username, setUsername] = useState(user.Username || '');
   const [password, setPassword] = useState(user.Password || '');
   const [email, setEmail] = useState(user.Email || '');
-  const [BirthDate, setBirthDate] = useState(user.BirthDate || '');
-  const [favoriteMovies, setFavoriteMovies] = useState(
-    user.FavoriteMovies || []
-  );
+  const [BirthDate, setBirthDate] = useState(new Date(user.BirthDate) || '');
+  const [favoriteMovies, setFavoriteMovies] = useState(user.FavoriteMovies || []);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -46,7 +46,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
       Username: username,
       Password: password,
       Email: email,
-      BirthDate: BirthDate
+      BirthDate: BirthDate,
     };
 
     fetch(
@@ -83,7 +83,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
 
   const handleDelete = () => {
     const isConfirmed = window.confirm('Are you sure you want to delete your account? This action cannot be undone.');
-  
+
     if (isConfirmed) {
       fetch(
         `https://myflix-api-98798a311278.herokuapp.com/users/${user.Username}`,
@@ -146,14 +146,17 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
                 required
               />
             </Form.Group>
-            <Form.Group controlId="formBirthday">
+            <Form.Group className="mb-2" controlId="formBirthday">
               <Form.Label>Birthday:</Form.Label>
-              <Form.Control
-                type="date"
-                value={BirthDate}
-                onChange={(e) => setBirthday(e.target.value)}
+              <div>
+              <DatePicker className="form-control" 
+                selected={BirthDate}
+                onChange={(date) => setBirthDate(date)}
+                dateFormat="MM-dd-yyyy"
+                showYearDropdown
                 required
               />
+              </div>
             </Form.Group>
 
             <Button className="update m-2" type="submit" onClick={handleUpdate}>
@@ -161,7 +164,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
             </Button>
             <br></br>
             <Button className="delete m-2 btn btn-danger" onClick={handleDelete}>
-            Delete Account
+              Delete Account
             </Button>
           </Form>
         </Col>
