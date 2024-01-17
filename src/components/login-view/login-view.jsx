@@ -13,7 +13,7 @@ export const LoginView = ({ onLoggedIn }) => {
  
     const data = {
       Username: username,
-      Password: password,
+      Password: password
     };
 
     fetch('https://myflix-api-98798a311278.herokuapp.com/login', {
@@ -59,6 +59,7 @@ export const LoginView = ({ onLoggedIn }) => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          minLength="7"
         />
       </Form.Group>
       <Button className="bg-secondary mt-3" type="submit">

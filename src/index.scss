@@ -3,6 +3,8 @@ $body-bg: #0A0908;
 $secondary: #306B34;
 $body-color: #ECEBE4;
 
-
+html {
+    width: 100%;
+}
 
 @import '~bootstrap/scss/bootstrap.scss';
