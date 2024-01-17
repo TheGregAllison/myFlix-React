@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 
@@ -27,7 +27,10 @@ export const SignupView = () => {
     }).then((response) => {
       if (response.ok) {
         alert('Signup successful');
-        window.location.reload();
+        response.json().then((userData) => {
+          localStorage.setItem('user', JSON.stringify(userData));
+          onLoggedIn(userData, token);
+        });
       } else {
         alert('Signup failed');
       }
@@ -64,7 +67,7 @@ export const SignupView = () => {
           required
         />
       </Form.Group>
-        <Form.Group controlId="formBirthDate">
+      <Form.Group controlId="formBirthDate">
         <Form.Label>Birthday:</Form.Label>
         <Form.Control
           type="date"
