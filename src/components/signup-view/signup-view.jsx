@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import Button from "react-bootstrap/Button";
-import Form from "react-bootstrap/Form";
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 
 export const SignupView = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [email, setEmail] = useState('');
-  const [birthday, setBirthday] = useState('');
+  const [BirthDate, setBirthDate] = useState('');
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -15,7 +15,7 @@ export const SignupView = () => {
       Username: username,
       Password: password,
       Email: email,
-      Birthday: birthday,
+      BirthDate: BirthDate,
     };
 
     fetch('https://myflix-api-98798a311278.herokuapp.com/users', {
@@ -63,15 +63,15 @@ export const SignupView = () => {
           onChange={(e) => setEmail(e.target.value)}
           required
         />
-      </Form.Group>
+        </Form.Group>
         <Form.Group controlId="formBirthDate">
-        <Form.Label>Birthday:</Form.Label>
-        <Form.Control
-          type="date"
-          value={birthday}
-          onChange={(e) => setBirthday(e.target.value)}
-          required
-        />
+          <Form.Label>Date of Birth:</Form.Label>
+          <Form.Control
+            type="date"
+            value={BirthDate}
+            onChange={(e) => setBirthDate(e.target.value)}
+            required
+          />
       </Form.Group>
       <Button className="bg-secondary mt-3" type="submit">
         Sign Up

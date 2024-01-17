@@ -1,18 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
 
 export const MovieCard = ({ movie, setUser, user }) => {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [buttonLabel, setButtonLabel] = useState('Favorite');
   const storedToken = localStorage.getItem('token');
 
   useEffect(() => {
     setIsFavorite(
-      user.favoriteMovies && user.favoriteMovies.includes(movie._id)
+      user.FavoriteMovies && user.FavoriteMovies.includes(movie._id)
     );
   }, [user, movie._id]);
+
+  useEffect(() => {
+    setButtonLabel(isFavorite ? 'Added' : 'Favorite');
+  }, [isFavorite]);
 
   const handleFavoriteClick = async () => {
     try {
@@ -31,7 +35,9 @@ export const MovieCard = ({ movie, setUser, user }) => {
       if (response.ok) {
         const updatedUser = await response.json();
         console.log('Response Data:', updatedUser);
-        setIsFavorite(true);
+        setIsFavorite((prevIsFavorite) => !prevIsFavorite);
+
+        console.log('isFavorite state after update:', isFavorite);
         setUser(updatedUser);
       } else {
         console.error('Error adding to favorites:', response.statusText);
@@ -42,44 +48,39 @@ export const MovieCard = ({ movie, setUser, user }) => {
   };
 
   return (
-      <Card className="d-flex h-100 rounded row p-1">
-        <Card.Body className="rounded bg-dark bg-gradient w-100 mb-0 ">
-          <Card.Img
-            className="card-image-top rounded-bottom w-100"
-            variant="top"
-            src={movie.ImageUrl}
-            style={{ cursor: 'pointer' }}
-          />
-          <Card.Title className="mt-3 light" style={{ cursor: 'pointer' }}>
-            {movie.Title}
-          </Card.Title>
-          <Card.Text>{movie.ReleaseYear}</Card.Text>
-          <Link
-            to={`/users/${encodeURIComponent(
-              user.Username
-            )}/movies/${encodeURIComponent(movie._id)}`}
+    <Card className="d-flex h-100 rounded row p-1">
+      <Card.Body className="rounded bg-dark bg-gradient w-100 mb-0 ">
+        <Card.Img
+          className="card-image-top rounded-bottom w-100"
+          variant="top"
+          src={movie.ImageUrl}
+          style={{ cursor: 'pointer' }}
+        />
+        <Card.Title className="mt-3 light" style={{ cursor: 'pointer' }}>
+          {movie.Title}
+        </Card.Title>
+        <Card.Text>{movie.ReleaseYear}</Card.Text>
+
+        {!isFavorite && (
+          <Button
+            className="btn  position-absolute bottom-0 start-0 mb-1"
+            variant="link"
+            onClick={() => handleFavoriteClick(movie)}
+            disabled={isFavorite}
           >
-            {!isFavorite && (
-              <Button
-                className="btn  position-absolute bottom-0 start-0 mb-1"
-                variant="link"
-                onClick={() => handleFavoriteClick(movie)}
-                disabled={isFavorite}
-              >
-                Favorite
-              </Button>
-            )}
-          </Link>
-          <Link to={`/movies/${encodeURIComponent(movie._id)}`}>
-            <Button
-              className="btn  position-absolute bottom-0 end-0 mb-1"
-              variant="link"
-            >
-              Open
-            </Button>
-          </Link>
-        </Card.Body>
-      </Card>
+            {buttonLabel}
+          </Button>
+        )}
+        <Link to={`/movies/${encodeURIComponent(movie._id)}`}>
+          <Button
+            className="btn  position-absolute bottom-0 end-0 mb-1"
+            variant="link"
+          >
+            Open
+          </Button>
+        </Link>
+      </Card.Body>
+    </Card>
   );
 };
 

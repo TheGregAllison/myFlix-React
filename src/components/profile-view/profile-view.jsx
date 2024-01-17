@@ -8,7 +8,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
   const [username, setUsername] = useState(user.Username || '');
   const [password, setPassword] = useState(user.Password || '');
   const [email, setEmail] = useState(user.Email || '');
-  const [birthday, setBirthday] = useState(user.Birthday || '');
+  const [BirthDate, setBirthDate] = useState(user.BirthDate || '');
   const [favoriteMovies, setFavoriteMovies] = useState(
     user.FavoriteMovies || []
   );
@@ -46,7 +46,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
       Username: username,
       Password: password,
       Email: email,
-      Birthday: birthday,
+      BirthDate: BirthDate
     };
 
     fetch(
@@ -150,7 +150,7 @@ export const ProfileView = ({ user, movies, setUser, token }) => {
               <Form.Label>Birthday:</Form.Label>
               <Form.Control
                 type="date"
-                value={birthday}
+                value={BirthDate}
                 onChange={(e) => setBirthday(e.target.value)}
                 required
               />
