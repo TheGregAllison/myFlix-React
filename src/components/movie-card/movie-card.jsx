@@ -20,7 +20,6 @@ export const MovieCard = ({ movie }) => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    // Set initial state of isFavorite based on userData.FavoriteMovies
     setIsFavorite(
       userData.FavoriteMovies && userData.FavoriteMovies.includes(movie._id)
     );

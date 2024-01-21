@@ -37,11 +37,8 @@ export const MainView = () => {
     const storedToken = localStorage.getItem('token');
     if (storedUser && storedToken) {
       if (!userData || !token) {
-        // Check if user and token are not already set
         dispatch(setUser({ user: storedUser, token: storedToken }));
       }
-
-      // Fetch movies only when both user and token are available
       fetchMovies(storedToken);
     }
   }, [userData, token]);
