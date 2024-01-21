@@ -1,44 +1,89 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import { Button, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
+import { setUser, updateUser } from '../../redux/reducers/user';
+import { useSelector, useDispatch } from 'react-redux';
 
-export const MovieCard = ({ movie, setUser, user }) => {
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [buttonLabel, setButtonLabel] = useState('Favorite');
-  const storedToken = localStorage.getItem('token');
+export const MovieCard = ({ movie }) => {
+  const movies = useSelector((state) => state.movies.list);
+  const user = useSelector((state) => state.user);
+  const userData = user.user;
+  const token = user.token;
+  const favoriteMovies = userData.FavoriteMovies || [];
+  const [isFavorite, setIsFavorite] = useState(() => {
+    if (!userData.FavoriteMovies) {
+      return false;
+    }
+    return userData.FavoriteMovies.includes(movie._id);
+  });
+  const [buttonLabel, setButtonLabel] = useState('FavoriteMovies');
+  const dispatch = useDispatch();
 
   useEffect(() => {
+    // Set initial state of isFavorite based on userData.FavoriteMovies
     setIsFavorite(
-      user.FavoriteMovies && user.FavoriteMovies.includes(movie._id)
+      userData.FavoriteMovies && userData.FavoriteMovies.includes(movie._id)
     );
-  }, [user, movie._id]);
 
-  useEffect(() => {
-    setButtonLabel(isFavorite ? 'Added' : 'Favorite');
-  }, [isFavorite]);
-
-  const handleFavoriteClick = async () => {
-    try {
-      console.log('Adding movie to favorites:', movie);
-      const response = await fetch(
-        `https://myflix-api-98798a311278.herokuapp.com/users/${user.Username}/movies/${movie._id}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${storedToken}`,
-          },
+    // Fetch user data only if necessary (e.g., if userData is not available)
+    if (!userData.FavoriteMovies) {
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(
+            `https://myflix-api-98798a311278.herokuapp.com/users/${userData.Username}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const dataFromApi = await response.json();
+          setIsFavorite(
+            dataFromApi.FavoriteMovies?.includes(movie._id) || false
+          );
+        } catch (error) {
+          console.error('Error fetching user data:', error);
         }
+      };
+
+      fetchUserData();
+    }
+  }, [userData, movie._id, token]);
+
+  const handleFavoriteClick = async (username, movieId, token) => {
+    try {
+      setIsFavorite(
+        userData.FavoriteMovies && userData.FavoriteMovies.includes(movie._id)
       );
+      console.log('BEFORE API CALL');
+      console.log('User Data:', user);
+      console.log('Movie ID:', movieId);
+      console.log('Adding/removing movie to/from favorites:', movieId);
 
-      if (response.ok) {
-        const updatedUser = await response.json();
-        console.log('Response Data:', updatedUser);
+      // Check if userData is defined and has the expected structure
+      if (userData && userData.FavoriteMovies) {
+        const response = await fetch(
+          `https://myflix-api-98798a311278.herokuapp.com/users/${username}/movies/${movieId}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log('AFTER API CALL');
+
+        if (response.ok) {
+          const updatedUser = await response.json();
+          dispatch(updateUser({ user: updatedUser, token: user.token }));
+          console.log('AFTER STATE CHANGE');
+          console.log('User Data:', user);
+        } else {
+          console.error('Error adding to favorites:', response.statusText);
+        }
         setIsFavorite((prevIsFavorite) => !prevIsFavorite);
-
-        console.log('isFavorite state after update:', isFavorite);
-        setUser(updatedUser);
       } else {
         console.error('Error adding to favorites:', response.statusText);
       }
@@ -61,14 +106,15 @@ export const MovieCard = ({ movie, setUser, user }) => {
         </Card.Title>
         <Card.Text>{movie.ReleaseYear}</Card.Text>
 
-        {!isFavorite && (
+        {isFavorite ? null : (
           <Button
-            className="btn  position-absolute bottom-0 start-0 mb-1"
+            className="btn position-absolute bottom-0 start-0 mb-1"
             variant="link"
-            onClick={() => handleFavoriteClick(movie)}
-            disabled={isFavorite}
+            onClick={() =>
+              handleFavoriteClick(userData.Username, movie._id, token)
+            }
           >
-            {buttonLabel}
+            Favorite
           </Button>
         )}
         <Link to={`/movies/${encodeURIComponent(movie._id)}`}>
@@ -82,20 +128,6 @@ export const MovieCard = ({ movie, setUser, user }) => {
       </Card.Body>
     </Card>
   );
-};
-
-MovieCard.propTypes = {
-  movie: PropTypes.shape({
-    Title: PropTypes.string.isRequired,
-    ImageUrl: PropTypes.string,
-    Director: PropTypes.string.isRequired,
-    ReleaseYear: PropTypes.string.isRequired,
-    Description: PropTypes.string,
-    Genre: PropTypes.string,
-  }).isRequired,
-  user: PropTypes.shape({
-    Username: PropTypes.string.isRequired,
-  }).isRequired,
 };
 
 export default MovieCard;

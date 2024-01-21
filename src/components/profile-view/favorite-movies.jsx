@@ -3,19 +3,29 @@ import { Row, Col, Container } from 'react-bootstrap';
 import { Card, Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { updateUser } from '../../redux/reducers/user';
+import { useNavigate } from 'react-router-dom';
 
-const FavoriteMovies = ({ FavMovies, user, setUser, movies }) => {
-  const [filteredMovies, setFilteredMovies] = useState(
-    FavMovies ? movies.filter((movie) => FavMovies.includes(movie._id)) : []
+const FavoriteMovies = () => {
+  const movies = useSelector((state) => state.movies.list);
+  const user = useSelector((state) => state.user);
+  const userData = user.user;
+  const token = user.token;
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const favMovies = movies.filter(
+    (m) =>
+      user && userData.FavoriteMovies && userData.FavoriteMovies.includes(m._id)
   );
 
-  const handleRemoveFav = async (user, movie) => {
+  const handleRemoveFav = async (movie) => {
     try {
-      const token = localStorage.getItem('token');
       console.log('Removing movie from favorites:', movie._id);
 
       const response = await fetch(
-        `https://myflix-api-98798a311278.herokuapp.com/users/${user.Username}/movies/${movie._id}`,
+        `https://myflix-api-98798a311278.herokuapp.com/users/${user.user.Username}/movies/${movie._id}`,
         {
           method: 'DELETE',
           headers: {
@@ -25,16 +35,13 @@ const FavoriteMovies = ({ FavMovies, user, setUser, movies }) => {
         }
       );
       if (response.ok) {
-        const updatedUser = await response.json();
-        localStorage.setItem('user', JSON.stringify(updatedUser));
-        setUser(updatedUser);
+        const updatedUserData = await response.json();
+        const updatedUserWithFavorites = {
+          ...user.user,
+          FavoriteMovies: updatedUserData.FavoriteMovies || [],
+        };
 
-        // Update filteredMovies by excluding the removed movie
-        const updatedFilteredMovies = filteredMovies.filter(
-          (filteredMovie) => filteredMovie._id !== movie._id
-        );
-
-        setFilteredMovies(updatedFilteredMovies);
+        dispatch(updateUser({ user: updatedUserWithFavorites, token }));
       } else {
         alert('Error: Movie could not be removed');
       }
@@ -46,11 +53,11 @@ const FavoriteMovies = ({ FavMovies, user, setUser, movies }) => {
   return (
     <>
       <h2 className="mt-4">Favorite Movies</h2>
-      {filteredMovies.length === 0 ? (
+      {favMovies.length === 0 ? (
         <p>No favorited movies.</p>
       ) : (
         <div className="row row-cols-1 row-cols-md-4 g-1">
-          {filteredMovies.map((movie) => (
+          {favMovies.map((movie) => (
             <Col key={movie._id} className="mb-4">
               <Card className="p-1 h-100">
                 <Card.Body className="rounded bg-dark bg-gradient w-100 mb-0">
@@ -70,7 +77,7 @@ const FavoriteMovies = ({ FavMovies, user, setUser, movies }) => {
                   <Button
                     className="btn position-absolute bottom-0 start-0 mb-1"
                     variant="link"
-                    onClick={() => handleRemoveFav(user, movie)}
+                    onClick={(e) => handleRemoveFav(movie)}
                   >
                     Remove
                   </Button>

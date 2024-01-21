@@ -1,73 +1,89 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
-import { MovieCard } from '../movie-card/movie-card';
+import { useEffect } from 'react';
 import { MovieView } from '../movie-view/movie-view';
 import { LoginView } from '../login-view/login-view';
 import { SignupView } from '../signup-view/signup-view';
-import Row from 'react-bootstrap/Row';
-import Col from 'react-bootstrap/Col';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { Row, Col } from 'react-bootstrap';
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  useParams,
+} from 'react-router-dom';
 import { NavigationBar } from '../navigation-bar/nagivation-bar';
 import ProfileView from '../profile-view/profile-view';
+import { useSelector, useDispatch } from 'react-redux';
+import { setMovies } from '../../redux/reducers/movies.js';
+import { setUser } from '../../redux/reducers/user.js';
+import { MoviesList } from '../movies-list/movies-list';
 
 export const MainView = () => {
-  const storedUser = JSON.parse(localStorage.getItem('user'));
-  const storedToken = localStorage.getItem('token');
-  const [user, setUser] = useState(storedUser ? storedUser : null);
-  const [token, setToken] = useState(storedToken ? storedToken : null);
-  const [movies, setMovies] = useState([]);
+  const movies = useSelector((state) => state.movies.list);
+  const { movieId } = useParams();
+  const movie = movies.find((m) => m._id === movieId);
+  const user = useSelector((state) => state.user);
+  const userData = user.user;
+  const token = user.token;
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (!storedToken) {
+    console.log('Token in MainView:', token);
+    console.log('User Data in MainView:', userData);
+  }, [token, userData]);
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem('user'));
+    const storedToken = localStorage.getItem('token');
+    if (storedUser && storedToken) {
+      if (!userData || !token) {
+        // Check if user and token are not already set
+        dispatch(setUser({ user: storedUser, token: storedToken }));
+      }
+
+      // Fetch movies only when both user and token are available
+      fetchMovies(storedToken);
+    }
+  }, [userData, token]);
+
+  const fetchMovies = (token) => {
+    if (!token) {
       console.error('Token is missing.');
       return;
     }
 
-    setToken(storedToken);
-
     fetch('https://myflix-api-98798a311278.herokuapp.com/movies', {
       headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${storedToken}`,
+        Authorization: `Bearer ${token}`,
       },
     })
       .then((response) => response.json())
       .then((data) => {
-        console.log('Movies data from API:', data);
-
-        const moviesFromApi = data.map((movie) => ({
-          _id: movie._id,
-          Title: movie.Title,
-          Description: movie.Description,
-          Genre: movie.Genre,
-          Director: movie.Director,
-          ReleaseYear: movie.ReleaseYear,
-          ImageUrl: movie.ImageUrl,
-        }));
-
-        setMovies(moviesFromApi);
-      })
-      .catch((error) => {
-        console.error('Error fetching data:', error);
+        const moviesFromApi = data.map((movie) => {
+          return {
+            _id: movie._id,
+            Title: movie.Title,
+            Description: movie.Description,
+            Genre: movie.Genre,
+            Director: movie.Director,
+            ReleaseYear: movie.ReleaseYear,
+            ImageUrl: movie.ImageUrl,
+          };
+        });
+        dispatch(setMovies(moviesFromApi));
       });
-  }, [token]);
+  };
 
   return (
     <BrowserRouter>
-      <NavigationBar
-        user={user}
-        onLoggedOut={() => {
-          setUser(null);
-          localStorage.clear();
-        }}
-      />
+      <NavigationBar />
       <Row className="d-flex justify-content-center mt-4 mb-4">
         <Routes>
           <Route
             path="/signup"
             element={
               <>
-                {user ? (
+                {token || userData ? (
                   <Navigate to="/" />
                 ) : (
                   <Col md={7} sm={9}>
@@ -80,28 +96,20 @@ export const MainView = () => {
           <Route
             path="/login"
             element={
-              <>
-                {user ? (
-                  <Navigate to="/" />
-                ) : (
-                  <Col md={5}>
-                    <LoginView onLoggedIn={(user) => setUser(user)} />
-                  </Col>
-                )}
-              </>
+              <>{token || userData ? <Navigate to="/" /> : <LoginView />}</>
             }
           />
           <Route
             path="/movies/:movieId"
             element={
               <>
-                {!user ? (
+                {!token || !userData ? (
                   <Navigate to="/login" replace />
                 ) : movies.length === 0 ? (
                   <Col>The list is empty!</Col>
                 ) : (
                   <Col md={8}>
-                    <MovieView movies={movies} />
+                    <MovieView />
                   </Col>
                 )}
               </>
@@ -111,23 +119,14 @@ export const MainView = () => {
             path="/"
             element={
               <>
-                {!user ? (
+                {!token || !userData ? (
                   <Navigate to="/login" replace />
                 ) : movies.length === 0 ? (
                   <Col>The list is empty!</Col>
                 ) : (
                   <>
                     <h2>Movies</h2>
-                    {movies.map((movie) => (
-                      <Col className="d-flex wrap mb-4" key={movie._id} md={3}>
-                        <MovieCard
-                          movie={movie}
-                          user={user}
-                          setUser={setUser}
-                          token={token}
-                        />
-                      </Col>
-                    ))}
+                    <MoviesList />
                   </>
                 )}
               </>
@@ -137,20 +136,10 @@ export const MainView = () => {
             path="/users/:username"
             element={
               <>
-                {!user ? (
+                {!token || !userData ? (
                   <Navigate to="/login" replace />
                 ) : (
-                  <ProfileView
-                    user={user}
-                    token={token}
-                    setUser={setUser}
-                    movies={movies}
-                    onDelete={() => {
-                      setUser(null);
-                      setToken(null);
-                      localStorage.clear();
-                    }}
-                  />
+                  <ProfileView />
                 )}
               </>
             }
@@ -159,16 +148,11 @@ export const MainView = () => {
             path="/users/:username/movies/:movieId"
             element={
               <>
-                {!user ? (
+                {!token || !userData ? (
                   <Navigate to="/login" replace />
                 ) : (
                   <Col>
-                    <ProfileView
-                      token={token}
-                      user={user}
-                      movies={movies}
-                      setUser={setUser}
-                    />
+                    <ProfileView />
                   </Col>
                 )}
               </>

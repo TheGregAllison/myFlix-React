@@ -2,12 +2,18 @@ import React from 'react';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
+import { useSelector, useDispatch } from 'react-redux';
+import { setUser } from '../../redux/reducers/user';
+import { useNavigate } from 'react-router-dom';
 
-export const LoginView = ({ onLoggedIn }) => {
+export const LoginView = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const handleSubmit = (event) => {
-    // this prevents the default behavior of the form which is to reload the entire page
+  const dispatch = useDispatch();
+  const userState = useSelector((state) => state.user);
+  const navigate = useNavigate();
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
     const data = {
@@ -15,27 +21,38 @@ export const LoginView = ({ onLoggedIn }) => {
       Password: password,
     };
 
-    fetch('https://myflix-api-98798a311278.herokuapp.com/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log('Login response: ', data);
-        if (data.user) {
-          localStorage.setItem('user', JSON.stringify(data.user));
-          localStorage.setItem('token', data.token);
-          onLoggedIn(data.user, data.token);
-        } else {
-          alert('No such user');
+    try {
+      const response = await fetch(
+        'https://myflix-api-98798a311278.herokuapp.com/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data),
         }
-      })
-      .catch((e) => {
-        alert('Something went wrong');
-      });
+      );
+
+      const responseData = await response.json();
+
+      console.log('Login response:', responseData);
+
+      if (responseData.user) {
+        localStorage.setItem('user', JSON.stringify(responseData.user));
+        localStorage.setItem('token', responseData.token);
+        console.log('Action payload:', responseData);
+        dispatch(
+          setUser({ user: responseData.user, token: responseData.token })
+        );
+        console.log(responseData);
+        navigate('/');
+      } else {
+        alert('No such user');
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      alert('Something went wrong');
+    }
   };
 
   return (

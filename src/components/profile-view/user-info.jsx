@@ -1,10 +1,15 @@
 import React from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 
-function UserInfo({ username, email }) {
+function UserInfo() {
+  const user = useSelector((state) => state.user);
+  const userData = user.user;
+  
+  
   return (
     <>
-      <h5>Username: {username}</h5>
-      <h5>Email: {email}</h5>
+      <h5>Username: {userData.Username}</h5>
+      <h5>Email: {userData.Email}</h5>
     </>
   );
 }
