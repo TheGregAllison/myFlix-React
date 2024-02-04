@@ -4,7 +4,7 @@ This project is a web application, built as the server for the MyFlix Movie API.
 
 This application is hosted at greg-allison-myflix.netlify.app/
 
-Movie Page Screenshot: https://github.com/TheGregAllison/myFlix-client/assets/146021687/cb39d6ce-5563-4557-a600-c15f92441aeb
+Movie Page Screenshot: <img width="1174" alt="Screenshot 2024-02-03 at 10 30 14 PM" src="https://github.com/TheGregAllison/myFlix-client/assets/146021687/cb39d6ce-5563-4557-a600-c15f92441aeb">
 
 ## Technologies used in development
 
