@@ -136,7 +136,6 @@ export const ProfileView = () => {
               <Form.Label>New Password:</Form.Label>
               <Form.Control
                 type="password"
-                value={userData.Password}
                 onChange={(e) => setPassword(e.target.value)}
                 minLength={8}
                 required
