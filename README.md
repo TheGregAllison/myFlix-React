@@ -2,7 +2,9 @@
 
 This project is a web application, built as the server for the MyFlix Movie API. This project was developed with Node.JS and Express, and uses MongoDB. The myFlix application is built with the React framework.
 
-This application is hosted at 
+This application is hosted at greg-allison-myflix.netlify.app/
+
+Movie Page Screenshot: https://github.com/TheGregAllison/myFlix-client/assets/146021687/cb39d6ce-5563-4557-a600-c15f92441aeb
 
 ## Technologies used in development
 
@@ -24,3 +26,5 @@ This application is hosted at
 - React-datepicker ^4.25.0
 - React redux ^9.1.0
 - React Scripts ^5.0.1
+
+https://github.com/TheGregAllison/myFlix-client/assets/146021687/cb39d6ce-5563-4557-a600-c15f92441aeb
