@@ -82,7 +82,21 @@ export const LoginView = () => {
         <Button className="bg-secondary mt-3" type="submit">
           Sign In
         </Button>
+        <div className='m-10px'>
+          <p>
+            <br />
+            Don't want to sign up?
+            <br />
+            Use my test account:
+            <br />
+            <br />
+            Username: React123
+            <br />
+            Password: ReactPassword
+          </p>
+        </div>
       </Form>
+      <br />
     </div>
   );
 };

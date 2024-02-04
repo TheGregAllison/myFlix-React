@@ -54,10 +54,10 @@ export const MovieCard = ({ movie }) => {
       setIsFavorite(
         userData.FavoriteMovies && userData.FavoriteMovies.includes(movie._id)
       );
-      console.log('BEFORE API CALL');
-      console.log('User Data:', user);
-      console.log('Movie ID:', movieId);
-      console.log('Adding/removing movie to/from favorites:', movieId);
+      // console.log('BEFORE API CALL');
+      // console.log('User Data:', user);
+      // console.log('Movie ID:', movieId);
+      // console.log('Adding/removing movie to/from favorites:', movieId);
 
       // Check if userData is defined and has the expected structure
       if (userData && userData.FavoriteMovies) {
@@ -72,13 +72,13 @@ export const MovieCard = ({ movie }) => {
           }
         );
 
-        console.log('AFTER API CALL');
+        // console.log('AFTER API CALL');
 
         if (response.ok) {
           const updatedUser = await response.json();
           dispatch(updateUser({ user: updatedUser, token: user.token }));
-          console.log('AFTER STATE CHANGE');
-          console.log('User Data:', user);
+          // console.log('AFTER STATE CHANGE');
+          // console.log('User Data:', user);
         } else {
           console.error('Error adding to favorites:', response.statusText);
         }
@@ -94,15 +94,19 @@ export const MovieCard = ({ movie }) => {
   return (
     <Card className="d-flex h-100 rounded row p-1">
       <Card.Body className="rounded bg-dark bg-gradient w-100 mb-0 ">
-        <Card.Img
-          className="card-image-top rounded-bottom w-100"
-          variant="top"
-          src={movie.ImageUrl}
-          style={{ cursor: 'pointer' }}
-        />
-        <Card.Title className="mt-3 light" style={{ cursor: 'pointer' }}>
-          {movie.Title}
-        </Card.Title>
+        <Link to={`/movies/${encodeURIComponent(movie._id)}`}>
+          <Card.Img
+            className="card-image-top rounded-bottom w-100"
+            variant="top"
+            src={movie.ImageUrl}
+            style={{ cursor: 'pointer' }}
+          />
+        </Link>
+        <Link to={`/movies/${encodeURIComponent(movie._id)}`} className='text-decoration-none'>
+          <Card.Title className="mt-3 light" style={{ cursor: 'pointer' }}>
+            {movie.Title}
+          </Card.Title>
+        </Link>
         <Card.Text>{movie.ReleaseYear}</Card.Text>
 
         {isFavorite ? null : (
