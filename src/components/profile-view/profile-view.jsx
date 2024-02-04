@@ -124,7 +124,7 @@ export const ProfileView = () => {
           <h2 className="profile-title">Update info</h2>
           <Form className="my-profile" onSubmit={handleUpdate}>
             <Form.Group className="mb-2" controlId="formUsername">
-              <Form.Label>New Password:</Form.Label>
+              <Form.Label>New Username:</Form.Label>
               <Form.Control
                 type="text"
                 value={userData.Username}
