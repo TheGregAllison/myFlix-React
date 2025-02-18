@@ -22,7 +22,7 @@ export const MovieView = () => {
         <Card.Img className="rounded" src={movie.ImageUrl} />
         <Card.Title className="mt-3 light">{movie.Title}</Card.Title>
         <Card.Text>{movie.ReleaseYear}</Card.Text>
-        <Card.Text>Directed by {movie.Director}</Card.Text>
+        <Card.Text>Directed by {movie.Director.Name}</Card.Text>
         <Card.Text>{movie.Description}</Card.Text>
         <Link to={'/'}>
           <Button
